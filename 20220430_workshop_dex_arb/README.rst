@@ -1,7 +1,7 @@
 Workshop - Hackujeme DeFi arbitráže
 ===================================
 
-Délka: 45min
+Délka: 50min
 
 Lektoři: Ondřej Vostal (www.chainkeepers.io, 0xkron)
 
