@@ -42,6 +42,19 @@ async function getERC20(address) {
 }
 
 
+async function getTxGasUsed(txHash) {
+  // For some reason this code works perfectly fine in hh --net local console, but
+  // kept returning a wild number in a test case.
+  gasInfo = (
+    await hre.network.provider.request({
+      method: 'eth_getTransactionReceipt',
+      params: [txHash],
+    })
+  )
+  return Number(gasInfo.gasUsed); // There is also `cumulativeGasUsed` attribute, seem the same so far.
+}
+
+
 /* Bware, that keys have to be lower-case. */
 const tokenHolders = {
   /* WETH is in WETH */
@@ -80,4 +93,5 @@ module.exports = {
   impersonate,
   sendTokens,
   getERC20,
+  getTxGasUsed,
 }
