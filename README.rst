@@ -12,4 +12,4 @@ Lecturer: Ondřej Vostal (www.chainkeepers.io, 0xkron)
 
 Presentation (cs): https://chainkeepers.github.io/talks/20220430_workshop_dex_arb/intro
 
-Code (sol, js): https://github.com/chainkeepers/talks/master/20220430_workshop_dex_arb/intro
+Code (sol, js): https://github.com/chainkeepers/talks/tree/master/20220430_workshop_dex_arb
