@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+
+        <head>
+                <meta charset="utf-8">
+
+                <title>CHAINKEEPERS: Hackujeme DeFi arbitráže</title>
+
+                <meta name="description" content="CHAINKEEPERS: Hackujeme DeFi arbitráže">
+                <meta name="author" content="Ondrej Vostal">
+
+                <meta name="apple-mobile-web-app-capable" content="yes">
+                <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+                <link rel="stylesheet" href="dist/reset.css">
+                <link rel="stylesheet" href="dist/reveal.css">
+                <link rel="stylesheet" href="dist/theme/chkp.css" id="theme">
+
+                <!-- Theme used for syntax highlighting of code -->
+                <link rel="stylesheet" href="plugin/highlight/monokai.css">
+        </head>
+
+        <body>
+
+                <div class="reveal">
+
+                        <!-- Any section element inside of this container is displayed as a slide -->
+                        <div class="slides">
+                                <section>
+                                        <a href="https://www.chainkeepers.io">
+                                                <img src="logo.png" alt="www.chainkeepers.io" style="height: 180px; margin: 4rem auto 1rem auto; background: transparent;" class="demo-logo">
+                                        </a>
+                                        <p>Hackujeme DeFi arbitráže</p>
+                                        <p>
+                                          <small>
+                                            <a href="mailto:ondrej@chainkeepers.io">Ondřej Vostal</a>
+                                            (<a href="https://www.chainkeepers.io">ChainKeepers</a>)
+                                          </small>
+                                        </p>
+                                </section>
+
+                                <section id="fragments">
+                                          <h2>agenda</h2>
+                                          <p class="fragment">ChainKeepers</p>
+                                          <p class="fragment">příklady MEV</p>
+                                          <p class="fragment">výběr burzy pro arbitráže</p>
+                                          <p class="fragment">hackujeme</p>
+                                </section>
+
+                                <section>
+                                        <section id="fragments">
+                                          <h2>ChainKeepers</h2>
+                                          <small>keeping DeFi working</small>
+                                          <p class="fragment">využíváme arbitrážních příležitostí</p>
+                                          <p class="fragment">udržujeme v DeFi <em>rovnováhu</em> a <em>stabilitu</em></p>
+                                          <p class="fragment">věříme v <em>otevřené</em> a <em>programovatelné</em> finance</p>
+                                          <p class="fragment">budeme <em>významným</em> tvůrcem cen v DeFi</p>
+                                          <p class="fragment">díky <em>skvělému</em> <a href="https://www.chainkeepers.io/cs/about/">týmu</a></p>
+                                          <p class="fragment">financování z <a href="https://www.mitonc.com">Miton C</a></p>
+                                          <p class="fragment">
+                                            vizionářskému mentorovi <a href="https://www.miton.cz/ondrej-raska">Ondřeji Raškovi</a>
+                                          </p>
+                                        </section>
+                                        <section id="fragments">
+                                          <small>CHAINKEEPERS</small>
+                                          <h2>stack</h2>
+                                          <p class="fragment"><em>GO</em> geth, <em>Rust</em> Solana</p>
+                                          <p class="fragment"><em>Solidity</em>, <em>Anchor</em> kontrakty</p>
+                                          <p class="fragment"><em>Python</em> trading strategies</p>
+                                          <p class="fragment"><em>Pandas</em>, <em>Grafana</em> reporting</p>
+                                          <p class="fragment"><em>TypeScript</em> někdy to jinak nejde</p>
+                                          <p class="fragment"><em>Ansible</em></p>
+                                          <p class="fragment"><a href="https://www.chainkeepers.io/cs/hiring">hledáme nové kolegy</a></p>
+                                        </section>
+                               </section>
+
+                                <section>
+                                        <section id="fragments">
+                                          <small>MEV</small>
+                                          <h2>příklady</h2>
+                                          <p class="fragment">MEV je zisk z <em>přerovnání</em> transakcí</p>
+                                          <p class="fragment">ICO</p>
+                                          <p class="fragment">swap</p>
+                                          <p class="fragment">likvidace</p>
+                                        </section>
+                                        <section id="fragments">
+                                          <small>MEV</small>
+                                          <h2>ico</h2>
+                                          <p class="fragment">"rozdáváme 100ETH - kdo <em>dřív</em> příjde, ten <em>dřív</em> mele"</p>
+                                          <p class="fragment">všichni chtějí jako <em>první</em> vybrat 100ETH</p>
+                                          <p class="fragment">kdo vyhraje?</p>
+                                          <p class="fragment"><em>miner</em> - je vždy první</p>
+                                        </section>
+                                        <section id="fragments">
+                                          <small>MEV</small>
+                                          <h2>arbitráž</h2>
+                                          <img src="swap.png" alt="swap" style="height: 100px; margin: 0 0 0 0; background: transparent;">
+                                          <p class="fragment">swap na Uniswapu není nic jiného</p>
+                                          <p class="fragment">"dává se X SHIB za Y ETH"</p>
+                                          <p class="fragment">jestli lze jinde získat Y ETH za Z &lt; X SHIB</p>
+                                          <p class="fragment">všichni chtějí takový ziskový obchod zrealizovat</p>
+                                          <p class="fragment">
+                                            <a href="https://etherscan.io/block/13036863">https://etherscan.io/block/13036863</a>,
+                                            2.tx
+                                          </p>
+                                        </section>
+                                        <section id="fragments">
+                                          <small>PŘÍKLADY MEV</small>
+                                          <h2>učím se dál</h2>
+                                          <p class="fragment">kouknu na začátek nějakého Flashbots bloku</p>
+                                        </section>
+                                </section>
+
+                                <section>
+                                        <section id="fragments">
+                                          <h2>výběr burzy</h2>
+                                          <p class="fragment">zisk = (edge) (neefektivita) (objem) (1 - fees)</p>
+                                          <p class="fragment">neefektivita ~ fees / objem</p>
+                                          <p class="fragment"><a href="https://www.theblockcrypto.com/data/decentralized-finance/dex-non-custodial">
+                                              The Block Dashboard
+                                          </a></p>
+                                        </section>
+                                </section>
+
+                               <section id="fragments">
+                                 <small>DEFI ARBITRÁŽE</small>
+                                 <h2>hackujeme</h2>
+                               </section>
+
+                        </div>
+
+                </div>
+
+                <script src="dist/reveal.js"></script>
+                <script src="plugin/zoom/zoom.js"></script>
+                <script src="plugin/notes/notes.js"></script>
+                <script src="plugin/search/search.js"></script>
+                <script src="plugin/markdown/markdown.js"></script>
+                <script src="plugin/highlight/highlight.js"></script>
+                <script>
+
+                        // Also available as an ES module, see:
+                        // https://revealjs.com/initialization/
+                        Reveal.initialize({
+                                controls: true,
+                                progress: true,
+                                center: true,
+                                hash: true,
+
+                                // Learn about plugins: https://revealjs.com/plugins/
+                                plugins: [ RevealZoom, RevealNotes, RevealSearch, RevealMarkdown, RevealHighlight ]
+                        });
+
+                </script>
+
+        </body>
+</html>

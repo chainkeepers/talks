@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# 1. start hardhat node with forked mainnet from Alchemy
+# 2. waits until it boots
+# 3. starts a hardhat task, test or script
+
+set -x
+
+npx hardhat node --fork https://eth-mainnet.alchemyapi.io/v2/cQ7eqtboeO428yWiVB-Qu_4gdBF-Wp-J --port 8888 &
+node=$!
+trap 'kill $node' EXIT
+
+while ! npx hardhat run --network local scripts/ping.js 2>/dev/null
+do
+    sleep 1
+done
+
+npx hardhat --network local "$@"
