@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+
+        <head>
+                <meta charset="utf-8">
+
+                <title>CHAINKEEPERS: A walk through DeFi</title>
+
+                <meta name="apple-mobile-web-app-capable" content="yes">
+                <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+                <link rel="stylesheet" href="dist/reset.css">
+                <link rel="stylesheet" href="dist/reveal.css">
+                <link rel="stylesheet" href="dist/theme/chkp.css" id="theme">
+
+                <!-- Theme used for syntax highlighting of code -->
+                <link rel="stylesheet" href="plugin/highlight/monokai.css">
+        </head>
+
+        <body>
+
+                <div class="reveal">
+
+                        <!-- Any section element inside of this container is displayed as a slide -->
+                        <div class="slides">
+                                <section>
+                                        <a href="https://www.chainkeepers.io">
+                                                <img src="logo_crop.png" alt="www.chainkeepers.io" style="height: 80px; margin: 4rem auto 1rem auto; background: transparent;" class="demo-logo">
+                                        </a>
+                                        <p>A walk through DeFi</p>
+                                        <p>
+                                          <small>
+                                            <a href="mailto:ondrej@chainkeepers.io">Ondřej Vostal</a>
+                                            (<a href="https://www.chainkeepers.io">ChainKeepers</a>, CEO & Founder, <a href="https://twitter.com/0xkron">0xkron</a>)
+                                          </small>
+                                        </p>
+                                        <a href="https://twitter.com/ChainKeepers">
+                                                <img src="chkp_twitter_qr.png" alt="https://twitter.com/ChainKeepers" style="height: 250px; margin: 4rem auto 1rem auto; background: transparent;" class="demo-logo">
+                                        </a>
+                                </section>
+
+                                <section id="fragments">
+                                  <small>A WALK THROUGH DEFI</small>
+                                  <h2>agenda</h2>
+                                  <a class="fragment" href="https://www.chainkeepers.io">
+                                    <img src="logo_crop.png" alt="www.chainkeepers.io" style="height: 20px; margin: 1rem auto 0 auto; background: transparent;" class="demo-logo">
+                                  </a>
+                                  <p class="fragment">blockchain</p>
+                                  <p class="fragment">defi</p>
+                                  <p class="fragment">farming</p>
+                                  <p class="fragment">discussion</p>
+                                </section>
+
+                                <section id="fragments">
+                                  <small>A WALK THOUGH DEFI</small>
+                                  <h2>DISCLAIMER</h2>
+                                  <p class="fragment">NOT FINANCIAL ADVICE</p>
+                                  <p class="fragment">do you own research</p>
+                                  <p class="fragment">100% loss is <strong>VERY</strong> likely</p>
+                                </section>
+
+                               <section>
+                                        <section id="fragments">
+                                        <a href="https://www.chainkeepers.io">
+                                                <img src="logo_crop.png" alt="www.chainkeepers.io" style="height: 80px; margin: 1rem auto 1rem auto; background: transparent;" class="demo-logo">
+                                        </a>
+                                          <p class="fragment"><em>open</em> and <em>programable</em> finance is going to change the world</p>
+                                          <p class="fragment"><em>improve</em> prices, <em>stabilize</em> DeFi</p>
+                                          <p class="fragment">strong investor <a href="https://www.mitonc.com">Miton C</a> (<a href="https://www.miton.cz/ondrej-raska">Ondřej Raška</a>)</p>
+                                          <p class="fragment">stack: <em>Rust</em>, <em>Python</em>, <em>Solidity</em>, <em>GO</em>, <em>TypeScript</em></p>
+                                          <p class="fragment">we're searching <a href="https://www.chainkeepers.io/cs/hiring">talented</a> colleagues</p>
+                                        </section>
+                               </section>
+
+                               <section>
+
+                                        <section id="fragments">
+                                          <small>A WALK THROUGH DEFI</small>
+                                          <h2>BLOCKCHAIN</h2>
+                                        </section>
+
+                                        <section id="fragments">
+                                          <small>BLOCKCHAIN</small>
+                                          <h2>substance</h2>
+                                          <img class="fragment" src="blockchain.png" alt="arb" style="height: 300px margin: 0 0 0 0; background: transparent;">
+                                          <p class="fragment">state &lt;-&gt; transactions &lt;-&gt; blocks &lt;-&gt; chain</p>
+                                        </section>
+                                        <section id="fragments">
+                                          <small>BLOCKCHAIN</small>
+                                          <h2>state</h2>
+                                          <p class="fragment">is a big hash table</p>
+                                          <img class="fragment" src="table.png" alt="table" style="height: 350px; margin: 0 0 0 0; background: transparent;">
+                                        </section>
+                                        <section id="fragments">
+                                          <small>BLOCKCHAIN</small>
+                                          <h2>transaction</h2>
+                                          <p class="fragment">changes state atomically</p>
+                                          <img class="fragment" src="state.png" alt="state" style="height: 350px; margin: 0 0 0 0; background: transparent;">
+                                        </section>
+                                        <section id="fragments">
+                                          <small>BLOCKCHAIN</small>
+                                          <h2>block</h2>
+                                          <p class="fragment">group of transactions voted upon</p>
+                                          <p class="fragment">transaction (function calls)</p>
+                                          <p class="fragment">=> mempool - send to all miners on the network</p>
+                                          <p class="fragment">=> miner - mines block with transaction</p>
+                                          <p class="fragment">=> next - more block appended</p>
+                                          <p class="fragment">=> transaction finalized</p>
+                                        </section>
+                                        <section id="fragments">
+                                          <small>BLOCKCHAIN</small>
+                                          <h2>chain</h2>
+                                          <p class="fragment">Modified-Merkle-Patricia Trie makes this viable</p>
+                                          <img class="fragment" src="hash.png" alt="hash" style="height: 350px; margin: 0 0 0 0; background: transparent;">
+                                        </section>
+
+                                </section>
+
+                                <section>
+
+                                        <section id="fragments">
+                                          <small>A WALK THROUGH DEFI</small>
+                                          <h2>DEFI</h2>
+                                        </section>
+
+                                        <section id="fragments">
+                                          <small>DEFI</small>
+                                          <h2>swaping</h2>
+                                          <p class="fragment">Automated Market Maker</p>
+                                          <p class="fragment">price given by X and Y in pool: XY = const</p>
+                                          <img class="fragment" src="xyk.png" alt="xyk" style="height: 300px; margin: 0 0 0 0; background: transparent;">
+                                        </section>
+
+                                        <section id="fragments">
+                                          <small>DEFI</small>
+                                          <h2>swaping</h2>
+                                          <p class="fragment">Trade A for B, fee ~25bp</p>
+                                          <p class="fragment">Provide A+B to earn ~22bp from every swap</p>
+                                          <img class="fragment" src="pools.png" alt="pools" style="height: 600px; margin: 0 0 0 0; background: transparent;">
+                                        </section>
+
+                                        <section id="fragments">
+                                          <small>DEFI</small>
+                                          <h2>lending</h2>
+                                          <p class="fragment">AAVEv3</p>
+                                          <img class="fragment" src="aave.png" alt="aave" style="height: 500px; margin: 0 0 0 0; background: transparent;">
+                                        </section>
+
+                                        <section id="fragments">
+                                          <small>DEFI</small>
+                                          <h2>nft</h2>
+                                          <img class="fragment" src="fidenza.png" alt="fidenza" style="height: 500px; margin: 0 0 0 0; background: transparent;">
+                                        </section>
+
+                                        <section id="fragments">
+                                          <small>DEFI</small>
+                                          <h2>nft</h2>
+                                          <img src="fidenza.png" alt="fidenza" style="height: 200px; margin: 0 0 0 0; background: transparent;">
+                                          <p class="fragment">each ERC-721 represents a collection</p>
+                                          <p class="fragment">each ERC-721 is its own marketplace - on-chain</p>
+                                          <p class="fragment">make bid, get the NFT</p>
+                                        </section>
+
+                                        <section id="fragments">
+                                          <small>DEFI</small>
+                                          <h2>domains</h2>
+                                          <img class="fragment" src="domains.png" alt="domains" style="height: 200px; margin: 0 0 0 0; background: transparent;">
+                                          <p class="fragment">just like a .com, but way, way better</p>
+                                          <p class="fragment">buy, sell, use</p>
+                                        </section>
+
+                                        <section id="fragments">
+                                          <small>DEFI</small>
+                                          <h2>PERP</h2>
+                                          <img class="fragment" src="perp.png" alt="perp" style="height: 400px; margin: 0 0 0 0; background: transparent;">
+                                          <p class="fragment">trade and earn funding</p>
+                                        </section>
+
+                                </section>
+
+                                <section>
+
+                                        <section id="fragments">
+                                          <small>A WALK THROUGH DEFI</small>
+                                          <h2>DEGEN</h2>
+                                        </section>
+
+                                        <section id="fragments">
+                                          <small>DEGEN</small>
+                                          <h2>rewards</h2>
+                                          <p class="fragment">rewards in some kind of shit-token</p>
+                                          <img class="fragment" src="rewards.png" alt="rewards" style="height: 500px; margin: 0 0 0 0; background: transparent;">
+                                          <p class="fragment"><small>orca</small></p>
+                                        </section>
+
+                                        <section id="fragments">
+                                          <small>DEFI</small>
+                                          <h2>leverage</h2>
+                                          <img class="fragment" src="francium.png" alt="francium" style="height: 300px; margin: 0 0 0 0; background: transparent;">
+                                          <p class="fragment">supply</p>
+                                          <p class="fragment">leverage</p>
+                                        </section>
+
+                                </section>
+
+                               <section id="fragments">
+                                 <small>A WALK THROUGH DEFI</small>
+                                 <h2>WRAPUP</h2>
+                                 <p class="fragment">blockchain, state, transactions, blocks</p>
+                                 <p class="fragment">swap, lend, borrow, leverage</p>
+                                 <p class="fragment">get rewarded in shit-tokens</p>
+                               </section>
+
+                               <section id="fragments">
+                                 <small>DISCUSSION</small>
+                                 <h2>degen hard</h2>
+                               </section>
+
+                        </div>
+
+                </div>
+
+                <script src="dist/reveal.js"></script>
+                <script src="plugin/zoom/zoom.js"></script>
+                <script src="plugin/notes/notes.js"></script>
+                <script src="plugin/search/search.js"></script>
+                <script src="plugin/markdown/markdown.js"></script>
+                <script src="plugin/highlight/highlight.js"></script>
+                <script>
+
+                        // Also available as an ES module, see:
+                        // https://revealjs.com/initialization/
+                        Reveal.initialize({
+                                controls: true,
+                                progress: true,
+                                center: true,
+                                hash: true,
+
+                                // Learn about plugins: https://revealjs.com/plugins/
+                          plugins: [ RevealZoom, RevealNotes, RevealSearch, RevealMarkdown, RevealHighlight ]
+                        });
+
+                </script>
+
+        </body>
+</html>
