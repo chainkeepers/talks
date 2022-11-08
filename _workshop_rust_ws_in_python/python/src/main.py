@@ -33,7 +33,7 @@ async def client_loop():
 
 
 async def term_loop(app):
-    await asyncio.sleep(120)
+    await asyncio.sleep(300)
     app.cancel()
 
 

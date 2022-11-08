@@ -77,7 +77,7 @@ async fn main() {
     let url = "wss://ftx.com/ws/";
     tokio::spawn(async move { connect(url).await; });
 
-    tokio::time::sleep(Duration::from_secs(120)).await;
+    tokio::time::sleep(Duration::from_secs(300)).await;
     
     info!("ended");
 }
