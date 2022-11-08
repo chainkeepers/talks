@@ -9,28 +9,15 @@ edition = "2021"
 # Communication
 tokio = { version = "1.17.0", features = ["full"] }
 tokio-stream = { version = "0.1.8", features=["sync"] }
-tonic = { version = "0.7.1", features = ["tokio", "prost", "transport", "compression"] }
-prost = "0.10.1"
 futures = "0.3.21"
+futures-util = "0.3"
 tokio-tungstenite = {version = "0.17.1", features = ["rustls-tls-webpki-roots"]}
 url = "2.2.2"
-futures-util = "0.3.21"
-h2 = "0.3.13"
 
 # Serialiation and deserialization
 serde_json = "1.0.79"
 serde = "1.0.136"
-bincode = "1.3.3"
-base64 = "0.13.0"
-bs58 = "0.4.0"
-jsonrpc-core = "18.0.0"
-jsonrpc-core-client = { version = "18.0.0", features=["ws", "tls"] }
-toml = "0.5.8"
 
 # Logging
 log = "0.4.16"
 simple_logger = "2.1.0"
-
-[build-dependencies]
-
-tonic-build = { version = "0.7.1", features = ["prost", "compression"] }
