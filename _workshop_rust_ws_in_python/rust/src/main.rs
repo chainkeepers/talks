@@ -1,8 +1,7 @@
 #![deny(unused_must_use)]
 
 use std::format;
-use std::time::SystemTime;
-use std::future::pending;
+use std::time::{SystemTime, Duration};
 use log::{error, info, Level, warn};
 use tokio_stream::StreamExt as TokioStreamExt;
 use futures_util::SinkExt;
@@ -49,7 +48,7 @@ async fn connect(ws_url: &str) {
         };
         let loc_time = get_timestamp();
         let ex_time = data["data"]["time"].as_f64().unwrap_or(0.);
-        info!(
+        println!(
             "{:>10.9}, {:>10.9}, {:>4.6}: {:>10.6}  {} {}  {: <10.6} ",
             loc_time,
             ex_time,
@@ -78,7 +77,7 @@ async fn main() {
     let url = "wss://ftx.com/ws/";
     tokio::spawn(async move { connect(url).await; });
 
-    pending::<()>().await;
-
+    tokio::time::sleep(Duration::from_secs(120)).await;
+    
     info!("ended");
 }

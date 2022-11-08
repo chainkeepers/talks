@@ -28,12 +28,12 @@ async def client_loop():
                 loc_time = datetime.now().timestamp()
                 
                 print(
-                    f"""{loc_time:>10.9f}, {ex_time:>10.9f}, {1000. * (loc_time - ex_time):>4.6f}: {data["data"]["bidSize"]:>10.6}  {data["data"]["bid"]} {data["data"]["ask"]}  {data["data"]["askSize"]: <10.6}"""
+                    f"""{loc_time:>10.9f}, {ex_time:>10.9f}, {1000. * (loc_time - ex_time):>4.6f}: {data["data"]["bidSize"]:>10.6}  {data["data"]["bid"]:.9} {data["data"]["ask"]:.9}  {data["data"]["askSize"]: <10.6}"""
                 )
 
 
 async def term_loop(app):
-    await asyncio.sleep(5)
+    await asyncio.sleep(120)
     app.cancel()
 
 
