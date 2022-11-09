@@ -1,6 +1,7 @@
 #![deny(unused_must_use)]
 
 use std::format;
+use std::env;
 use std::time::{SystemTime, Duration};
 use log::{error, info, Level, warn};
 use tokio_stream::StreamExt as TokioStreamExt;
@@ -77,7 +78,9 @@ async fn main() {
     let url = "wss://ftx.com/ws/";
     tokio::spawn(async move { connect(url).await; });
 
-    tokio::time::sleep(Duration::from_secs(300)).await;
+    let args: Vec<String> = env::args().collect();
+    let duration_secs: u64 = args[1].parse().unwrap();
+    tokio::time::sleep(Duration::from_secs(duration_secs)).await;
     
     info!("ended");
 }

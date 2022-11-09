@@ -1,6 +1,7 @@
 import asyncio
 import orjson
 import time
+import sys
 
 from aiohttp import ClientSession
 import websockets
@@ -32,15 +33,16 @@ async def client_loop():
                 )
 
 
-async def term_loop(app):
-    await asyncio.sleep(300)
+async def term_loop(app, duration):
+    await asyncio.sleep(duration)
     app.cancel()
 
 
-async def main_loop():
+async def main_loop(duration):
     app = asyncio.create_task(client_loop())
-    await term_loop(app)
+    await term_loop(app, duration)
 
 
 if __name__ == "__main__":
-    asyncio.run(main_loop())
+    duration = int(sys.argv[1])
+    asyncio.run(main_loop(duration))

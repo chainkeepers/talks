@@ -10,4 +10,7 @@ class Stream:
 
     async def __aiter__(self):
         while True:
-            yield await self.stream.queue.get()
+            data = await self.stream.queue.get()
+            if isinstance(data, Exception):
+                raise data
+            yield data

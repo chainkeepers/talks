@@ -1,4 +1,10 @@
 class _Stream:
-    async def __aiter__(self):
-        while True:
-            yield await self.queue.get()
+
+    url: str
+    queue: str
+
+    def __init__(self, url: str) -> None:
+        ...
+
+    def run(self, duration: int) -> None:
+        ...

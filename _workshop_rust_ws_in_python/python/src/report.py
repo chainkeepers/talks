@@ -37,12 +37,36 @@ def load_log(filename):
     return df.copy()
 
 
+def describe(x):
+
+    q = [.025, .25, .5, .75, .975]
+    report = x.describe(q)
+    x_trunc = x[x.between(report.loc['25%'], report['75%'])]
+    x_trunc2 = x[x.between(report.loc['2.5%'], report['97.5%'])]
+
+    return pd.DataFrame({
+        'all': report,
+        'center 95%': x_trunc2.describe(q),
+        'center 50%': x_trunc.describe(q),
+    })
+
+    
 def main(rustfile, pythonfile):
     rust_df = load_log(rustfile)
     python_df = load_log(pythonfile)
     
-    print('rust', rust_df['latency'].describe())
-    print('python', python_df['latency'].describe())
+    print("Report")
+    print("Times in ms.")
+    print('Latency diffs are "Python - Rust".')
+    print('Positive latency diff means Rust is faster.')
+
+    print()
+    print("Rust latency")
+    print(describe(rust_df['latency']))
+
+    print()
+    print("Python latency")
+    print(describe(python_df['latency']))
 
     # 1)
 
@@ -59,16 +83,23 @@ def main(rustfile, pythonfile):
         assert df[f'data{i}_x'].equals(df2[f'data{i}']), f'data{i} _x and df2 not equal'
         assert df[f'data{i}_y'].equals(df2[f'data{i}']), f'data{i} _y and df2 not equal'
 
-    df2['py_rst_latency'] = df2['loc_time_py'] - df2['loc_time_rst']
+    df2['py_rst_latency'] = 1000 * (df2['loc_time_py'] - df2['loc_time_rst'])
 
     # latency at all data
 
-    print(df2['py_rst_latency'].describe())
+    print()
+    print("Latency diffs")
+
+    print()
+    print("All")
+    print(describe(df2['py_rst_latency']))
 
     # latency at all changes
 
     is_changed = df2[['data0', 'data1', 'data2', 'data3']].diff() != 0
-    print(df2.loc[is_changed.any(axis=1), 'py_rst_latency'].describe())
+    print()
+    print("Any change")
+    print(describe(df2.loc[is_changed.any(axis=1), 'py_rst_latency']))
 
     # filter changes in data
 
@@ -76,13 +107,14 @@ def main(rustfile, pythonfile):
         (df2[['data0', 'data3']].pct_change().abs() > 5)
         | (df2[['data1', 'data2']].pct_change().abs() > 0.5)
     )
-    print(df2.loc[is_changed_much.any(axis=1), 'py_rst_latency'].describe())
+    print()
+    print("Big change")
+    print(describe(df2.loc[is_changed_much.any(axis=1), 'py_rst_latency']))
 
 
 if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2])
 
+    # The results are optimized
+    # The results are not using pyston
 
-    # results: unoptimized
-    # results: optimized
-    # results: pyston

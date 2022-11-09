@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# build
+
+(
+    cd rust
+    cargo build --release
+)
+
+(
+    cd rust-python/ruws
+    cargo build --release
+)
+
+# run
+
+(
+    ./rust/target/release/rust-ws 600 > rust.log &
+    PYTHONPATH=python/src python3 -m main 600 > python.log &
+    PYTHONPATH=rust-python/src python3 -m main 600 > rust-python.log &
+    wait
+)

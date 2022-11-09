@@ -1,19 +1,16 @@
 import asyncio
 import logging
 import time
+import sys
 
-import ruws
+from ruws import Stream
 
 
-async def main_loop():
+async def main_loop(duration):
 
     url = "wss://ftx.com/ws/"
-
-    stream = ruws.Stream(url)
-
-    print(f"The stream URL is {stream.url}")
-
-    stream.run()
+    stream = Stream(url)
+    stream.run(duration)
 
     async for data in stream:
         py_time = time.time()
@@ -30,4 +27,5 @@ async def main_loop():
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    asyncio.run(main_loop())
+    duration = int(sys.argv[1])
+    asyncio.run(main_loop(duration))

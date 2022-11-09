@@ -21,6 +21,43 @@ use pyo3::types::{PyDict, PyList, PyTuple, PyString};
 
 
 
+struct PyAsyncQueue {
+    loop_: PyObject,
+    queue: PyObject,
+    call_soon_threadsafe: PyObject,
+    put_nowait: PyObject,
+}
+
+
+impl PyAsyncQueue {
+
+    pub fn new() -> PyAsyncQueue {
+        Python::with_gil(|py| {
+            py.run("from asyncio import Queue", None, None).unwrap();
+            let res = py.eval("Queue()", None, None).unwrap();
+            let queue = res.into_py(py);
+            let loop_ = get_running_loop();
+            PyAsyncQueue {
+                put_nowait: queue.getattr(py, PyString::new(py, "put_nowait")).unwrap(),
+                call_soon_threadsafe: loop_.getattr(py, PyString::new(py, "call_soon_threadsafe")).unwrap(),
+                queue: queue,
+                loop_: loop_,
+            }
+        })
+    }
+
+    pub fn push<T: ToPyObject>(&self, value: T) {
+        Python::with_gil(|py| {
+            let py_value = value.to_object(py);
+            self.call_soon_threadsafe.call1(
+                py,
+                (&self.put_nowait, py_value)
+            ).unwrap();
+        });
+    }
+}
+
+
 fn create_python_queue() -> PyObject {
     Python::with_gil(|py| {
         py.run("from asyncio import Queue", None, None).unwrap();
@@ -40,6 +77,13 @@ fn push_python_queue<T: ToPyObject>(loop_: &PyObject, queue: &PyObject, value: T
             (put_nowait, py_value)
         ).unwrap();
     });
+}
+
+
+fn get_running_loop() -> PyObject {
+    Python::with_gil(|py| {
+        py.eval("asyncio.get_running_loop()", None, None).unwrap().into_py(py)
+    })
 }
 
 
@@ -87,7 +131,7 @@ fn subscribe(market: &str) -> Message {
 }
 
 
-async fn connect(queue: &PyObject, loop_: &PyObject, ws_url: &str) {
+async fn connect(queue: Arc<PyAsyncQueue>, ws_url: &str) {
     let (mut connection, response) = tokio_tungstenite::connect_async(url::Url::parse(ws_url).unwrap()).await.unwrap();
     info!("response: {:?}", response);
 
@@ -160,53 +204,53 @@ async fn connect(queue: &PyObject, loop_: &PyObject, ws_url: &str) {
             ).unwrap().to_object(py)
         });
 
-        push_python_queue(loop_, queue, data_dict);
+        queue.push(data_dict);
     };
 
     match connection.close(None).await {
         Ok(_) => info!("Successfully disconnected"),
         /* Use a Python exception */
         Err(err) => {
-            info!("Failed to disconnect because of {:?}", err);
-            push_python_queue(loop_, queue, StreamException::new_err(""))
+            let msg = format!("Failed to disconnect because of {:?}", err);
+            info!("{}", msg);
+            queue.push(StreamError::new_err(msg));
         }
                 
     }
 }
 
 
-async fn stream_loop(queue: &PyObject, future: &PyObject, loop_: &PyObject) {
+async fn stream_loop(queue: Arc<PyAsyncQueue>, duration: u64) {
     info!("running stream");
 
     let url = "wss://ftx.com/ws/";
-    Python::with_gil(|py| {
-        let ptr = queue.clone_ref(py);
-        let loop_ptr = loop_.clone_ref(py);
-        tokio::spawn(async move { connect(&ptr, &loop_ptr, url).await; });
-    });
+    let ptr = Arc::clone(&queue);
+    tokio::spawn(async move { connect(ptr, url).await; });
+    tokio::time::sleep(Duration::from_secs(duration)).await;
 
-    set_python_future(loop_, future, "works");
-
-    tokio::time::sleep(Duration::from_secs(300)).await;
+    queue.push(StreamEnded::new_err(""));
 
     info!("stream ended");
 }
 
 
-fn run_stream(queue: &PyObject, future: &PyObject, loop_: &PyObject) {
+fn run_stream(queue: Arc<PyAsyncQueue>, duration: u64) {
     let runtime = runtime::Builder::new_current_thread()
         .enable_time()
         .enable_io()
         .build()
         .unwrap();
-    runtime.block_on(async move { stream_loop(queue, future, loop_).await });
+    runtime.block_on(async move { stream_loop(queue, duration).await });
 }
 
+
+use std::sync::Arc;
 
 #[pyclass(extends=PyAny)]
 struct _Stream {
     url: String,
-    queue: PyObject,
+    queue: Arc<PyAsyncQueue>,
+    
 }
 
 
@@ -218,20 +262,14 @@ impl _Stream {
         info!("creating new _Stream");
         _Stream {
             url: url,
-            queue: create_python_queue()
+            queue: Arc::new(PyAsyncQueue::new()),
         }
     }
 
-    fn run(&self) -> PyObject {
+    fn run(&self, duration: u64) {
         info!("spawning ruws thread");
-        let future = create_python_future();
-        Python::with_gil(|py| {
-            let ptr = self.queue.clone_ref(py);
-            let fptr = future.clone_ref(py);
-            let lptr = py.eval("asyncio.get_running_loop()", None, None).unwrap().into_py(py);
-            std::thread::spawn(move || run_stream(&ptr, &fptr, &lptr));
-        });
-        future
+        let ptr = Arc::clone(&self.queue);
+        std::thread::spawn(move || run_stream(ptr, duration));
     }
 
     #[getter]
@@ -241,7 +279,7 @@ impl _Stream {
 
     #[getter]
     fn queue(&self) -> PyObject {
-        self.queue.clone()
+        self.queue.queue.clone()
     }
 
 }
@@ -249,7 +287,8 @@ impl _Stream {
 
 /* Create a Python exception */
 
-create_exception!(rusaber, StreamException, pyo3::exceptions::PyException);
+create_exception!(rusaber, StreamEnded, pyo3::exceptions::PyException);
+create_exception!(rusaber, StreamError, pyo3::exceptions::PyException);
 
 
 
@@ -265,7 +304,8 @@ fn libpyws(_py: Python, m: &PyModule) -> PyResult<()> {
     Python::with_gil(|py| -> PyResult<()> {
         m.add_class::<_Stream>()?;
 
-        m.add("StreamException",py.get_type::<StreamException>())?;
+        m.add("StreamEnded",py.get_type::<StreamEnded>())?;
+        m.add("StreamError",py.get_type::<StreamError>())?;
 
         // #[pyfunction]
         // fn log_something() {
