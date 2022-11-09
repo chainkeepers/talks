@@ -1,6 +1,6 @@
 import asyncio
 import orjson
-from datetime import datetime
+import time
 
 from aiohttp import ClientSession
 import websockets
@@ -25,7 +25,7 @@ async def client_loop():
                     continue
                 
                 ex_time = data["data"]["time"]
-                loc_time = datetime.now().timestamp()
+                loc_time = time.time()
                 
                 print(
                     f"""{loc_time:>10.9f}, {ex_time:>10.9f}, {1000. * (loc_time - ex_time):>4.6f}: {data["data"]["bidSize"]:>10.6}  {data["data"]["bid"]:.9} {data["data"]["ask"]:.9}  {data["data"]["askSize"]: <10.6}"""
