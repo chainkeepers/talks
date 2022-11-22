@@ -1,0 +1,10 @@
+install
+
+make install
+
+run
+
+/go/bin/seid keys add validator --recover <<<"lemon suggest pen left hub annual bone hedgehog issue vivid magnet lunar bench crazy alarm stick stay delay ramp hire company chair aisle unfold"
+/go/bin/seid init CHKP --chain-id=atlantic-1
+curl https://raw.githubusercontent.com/sei-protocol/testnet/main/sei-incentivized-testnet/genesis.json > $HOME/.sei/config/genesis.json
+sed -i 's/seeds = ""/seeds = "df1f6617ff5acdc85d9daa890300a57a9d956e5e@sei-atlantic-1.seed.rhinostake.com:16660"/g' $HOME/.sei/config/config.toml

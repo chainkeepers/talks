@@ -1,0 +1,196 @@
+GENERALLY
+=========
+
+- what happens after you send a transaction
+- where do you send it
+
+- how is an opeartion done on a smart contract
+
+- where to be to be fast?
+
+- MEV?
+
+SOLANA
+======
+
+- holds the record now
+- 2-3k txs per second
+- https://solanabeach.io/
+- 1/6 - 1/4 of non-vote txs
+- non-vote txs ~500 tps
+
+- other chains ...
+- ETH: ~10 tps
+- AVAX: ~1 tps
+- MATIC: ~30 tps
+- NEAR: ~10 tps
+- ARBITRUM: ~5 tps
+- OPTIMISM: ~5 tps
+
+APTOS
+=====
+
+- just does not seem very mature...
+
+SEI
+===
+
+- L1 - fast, build to connect with cosmos
+- built to enable high-speed defi
+- DX-CLOB APP chain on Cosmos
+
+---
+
+Native order matching engine - drives scalability of orderbook DEXs built on Sei
+
+Breaking Tendermint - Sei is the fastest chain to finality at ~600ms
+
+Twin-turbo consensus - improves latency and throughput
+
+Frontrunning protection - combats malicious frontrunning that is rampant in other ecosystems
+
+Market-based parallelization - specialized parallelization for DeFi
+
+---
+
+Twin-Turbo Consensus: intelligent block propagation + optimistic block processing
+Native order matching engine: driving scalability for orderbook DEXs on Sei
+Breaking Tendermint: Sei is the fastest chain to finality at 600ms
+DeFi-specific parallelization: massively increases throughput and order processing
+
+---
+
+Frequent batch auctioning: rather than executing each order one-by-one (as would happen on Ethereum or Solana). Sei can aggregate every order together at the end of the block and execute all market orders at the same price to help prevent frontrunning
+
+---
+
+Order paralelization - matching is done in parallel inside the validator software
+Go might limit the speed though
+
+---
+
+ORacle module : -prevote, -vote ... oracle module is part of the protocol
+
+---
+
+Concerning blockchain - its just Cosmos tendermint
+=> So read the code dummy...
+
+---
+
+COSMOS:
+
+-blocks
+-transactions
+-messages
+
+Tendermint:
+
+-1/3 can fail
+-replicate application generically
+ -> transactions recorded in the same order across all machines
+-https://docs.tendermint.com/v0.34/introduction/what-is-tendermint.html
+-Tendermint Core:
+Sharing blocks and transactions between nodes
+Establishing a canonical/immutable order of transactions (the blockchain)
+=> It is enough to study Tendermint Core here
+
+---
+
+https://docs.tendermint.com/v0.34/assets/img/consensus_logic.e9f4ca6f.png
+
+---
+
+All the software is implemented in the sei-chain module
+
+---
+
+install
+
+make install
+
+run
+
+/go/bin/seid keys add validator --recover <<<"lemon suggest pen left hub annual bone hedgehog issue vivid magnet lunar bench crazy alarm stick stay delay ramp hire company chair aisle unfold"
+/go/bin/seid init CHKP --chain-id=atlantic-1
+curl https://raw.githubusercontent.com/sei-protocol/testnet/main/sei-incentivized-testnet/genesis.json > $HOME/.sei/config/genesis.json
+sed -i 's/seeds = ""/seeds = "df1f6617ff5acdc85d9daa890300a57a9d956e5e@sei-atlantic-1.seed.rhinostake.com:16660"/g' $HOME/.sei/config/config.toml
+
+---
+
+How to you search for this?  You find RPC handlers and go from there.
+
+... only block height - search for that
+https://github.com/sei-protocol/sei-chain/blob/b2be7b9e4723d50d7693e4536512af803f03d1fd/vue/src/store/generated/cosmos/cosmos-sdk/cosmos.base.tendermint.v1beta1/module/rest.ts
+
+... that is because its inside cosmos SDK
+
+=> simd tx broadcast tx_signed.json
+... https://docs.cosmos.network/v0.46/run-node/txs.html#broadcasting-a-transaction-2
+
+
+track block propagation..
+
+ProcessBlockConcurrent(
+->
+ProcessBlock(
+-> ABCI processing
+...
+
+
+Its just Tendermint with overriden timeouts.
+
+TX Lifetime
+
+(Tendermint): https://github.com/tendermint/tendermint
+
+
+1. Ingestion through the Cosmos SDK
+(Cosmos) -> BroadcastTxAsync -> Context.GetNode -> TendermintRPC -> (Tendermint)
+
+2. Added to TxMempool in Tendermint
+(Tendermint) -> rpc/core/mempool BroadcastTxCommit(Context, Tx)
+  -> core.CheckTx(Context, Tx)
+  -> mempool/v1/mempool TxMempool.(Mempool).CheckTx
+
+3. Received transactions are added into Mempool
+
+(Tendermint) 
+  -> mempool/v1/reactor Receive
+  -> mempool/v1/mempool CheckTx(Message.getTxs())
+  -> addNewTransaction
+  -> insertTx // txmp.PushBack(tx) [txmp CList: double ended Queue, with sync primitives]
+  -> notifyTxsAvailable
+  -> txsAvailable<-{}
+
+4. Every transaction added to mempool is broadcasted
+   to all peers that do not have it
+
+(Tendermint) 
+  -> mempool/v1/reactor broadcastTxRoutine for every peer added [broadcasts mempool txs]
+  -> <-Mempool.TxsWaitChan
+  -> <-CList.WaitChan()
+  -> <-CList.waitCh [wait for some txs in the mempool]
+  -> peer.Send(Tx) if it does not have it already
+  (https://github.com/tendermint/tendermint/blob/09b8708314617855da41a2ff7898e72aba1dee8b/mempool/v1/reactor.go#L246)
+
+5. There is a pre-vote stage for every block before it gets finalized
+   Block proposals (PartSet) are available.
+6. Proposing new block distributes the block among peers.
+   Both eventually go through the same channel.
+
+(Tendermint)
+  -> defaultDecideProposal
+  -> sendInternalMessage
+  -> internalMsgQueue<- &Proposal and all &BlockParts
+  -> in receiveRoutine: <-internalMsgQueue + <-peerMsgQueue
+  -> State.handleMsg
+  -> Proposal.(PartSet).IsComplete() ... the block is not emitted, however
+  //
+  -> consensus/reactor gossipDataRoutine ... updates by getRoundState()
+  => block is gossiped to others
+
+=> You can have blocks as soon as they are being built.
+
+EventBus - global pub/sub bus with messages
+

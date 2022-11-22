@@ -1,0 +1,58 @@
+---
+
+WHAT IS SUI
+
+- changes at the consensus level
+=> causal order vs. total order
+
+- transactions are sent by obtaining a "certificate" of validity
+  from all validators PoS-weighted, then it is "final"
+
+- the transaction is then broadcast to be processed by the network
+
+- state is stored in "versioned object"
+- each transaction modifies object takin in other objects at specific versions
+
+- transactions with non-interdependent histories can be processed in parallel
+
+---
+
+What is in effect a shared object?
+
+An object is owned by creator.  Later can be shared with other addresses.
+
+Objects contain version, i.e. tx that included the object as its output.
+
+Object has an owner:
+  - address
+  - another object
+  - immutable - noone owns it
+  - shared - anyone can query it
+  
+-> objects can be "moved", i.e. change owners
+
+---
+
+https://docs.sui.io/learn/architecture/validators
+
+- clients themself submit certificates to validators
+- other validators will obtain them via inter-validator sync
+- or client-assisted sync
+
+---
+
+Mempool is in a DAG where the validators vote.
+
+Each validator can add transactions.
+
+---
+
+Ad a validator, you get the transactions to be included
+
+  - either from clients directly
+  - or during DAG construction - for shared objects
+
+Also with shared object, the user collects and re-broadcasts
+the certificate.  Only this time, the certificate undergoes
+a concensus round among the validators.
+
