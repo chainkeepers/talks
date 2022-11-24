@@ -47,7 +47,7 @@ Each validator can add transactions.
 
 ---
 
-Ad a validator, you get the transactions to be included
+As a validator, you get the transactions to be included
 
   - either from clients directly
   - or during DAG construction - for shared objects

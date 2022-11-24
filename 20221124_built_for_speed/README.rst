@@ -1,7 +1,7 @@
 BUILT FOR SPEED
 ===============
 
-Duration: 30min
+Duration: 40min
 
 Speaker: Ondřej Vostal (Founder & CEO at ChainKeepers, www.chainkeepers.io, https://twitter.com/0xkron)
 
