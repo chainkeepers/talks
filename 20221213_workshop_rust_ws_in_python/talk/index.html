@@ -1,0 +1,508 @@
+<!doctype html>
+<html lang="en">
+
+        <head>
+                <meta charset="utf-8">
+
+                <title>CHINKEEPERS: Async Python modules in Rust</title>
+
+                <meta name="apple-mobile-web-app-capable" content="yes">
+                <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+                <link rel="stylesheet" href="dist/reset.css">
+                <link rel="stylesheet" href="dist/reveal.css">
+                <link rel="stylesheet" href="dist/theme/chkp.css" id="theme">
+
+                <!-- Theme used for syntax highlighting of code -->
+                <link rel="stylesheet" href="plugin/highlight/monokai.css">
+        </head>
+
+        <body>
+
+                <div class="reveal">
+
+                        <!-- Any section element inside of this container is displayed as a slide -->
+                        <div class="slides">
+
+                                <section>
+                                        <a href="https://www.chainkeepers.io">
+                                                <img src="logo_crop.png" alt="www.chainkeepers.io" style="height: 80px; margin: 4rem auto 1rem auto; background: transparent;" class="demo-logo">
+                                        </a>
+                                        <p>Async Python modules in Rust</p>
+                                        <p>
+                                          <small>
+                                            <a href="mailto:ondrej@chainkeepers.io">Ondřej Vostal</a>
+                                            (<a href="https://www.chainkeepers.io">ChainKeepers</a>, CEO & Founder, <a href="https://twitter.com/0xkron">0xkron</a>)
+                                          </small>
+                                        </p>
+                                        <a href="https://twitter.com/ChainKeepers">
+                                                <img src="chkp_twitter_qr.png" alt="https://twitter.com/ChainKeepers" style="height: 400px; margin: 1rem auto 1rem auto; background: transparent;" class="qrcode">
+                                        </a>
+                                </section>
+
+                                <section id="fragments">
+                                  <small>ASYNC PYTHON MODULES IN RUST</small>
+                                  <h2>agenda</h2>
+                                  <p class="fragment">about&nbsp;
+                                  <a href="https://www.chainkeepers.io">
+                                    <img src="logo_crop.png" alt="www.chainkeepers.io" style="height: 25px; margin: 1rem auto 0 auto; background: transparent;" class="demo-logo">
+                                  </a>
+                                  </p>
+                                  <p class="fragment">performance</p>
+                                  <p class="fragment">websockets</p>
+                                  <p class="fragment">ruws - Websockets in Rust</p>
+                                </section>
+
+                               <section>
+                                        <section id="fragments">
+                                         <p>about</p>
+                                        <a href="https://www.chainkeepers.io">
+                                                <img src="logo_crop.png" alt="www.chainkeepers.io" style="height: 80px; margin: 1rem auto 1rem auto; background: transparent;" class="demo-logo">
+                                        </a>
+                                          <p class="fragment">we firmly belive that <em>open</em> and <em>programable</em> finance is going to advance the world</p>
+                                          <p class="fragment">we <em>improve</em> prices, and <em>stabilize</em> DeFi</p>
+                                          <p class="fragment">we have a strong investor <a href="https://www.mitonc.com">Miton C</a> (<a href="https://www.miton.cz/ondrej-raska">Ondřej Raška</a>)</p>
+                                          <p class="fragment">we use a lot of <em>Rust</em> and <em>Python</em></p>
+                                          <p class="fragment">looking for extraordinary <a href="https://www.chainkeepers.io/cs/hiring">talent</a> to join our ranks</p>
+                                        </section>
+                               </section>
+
+                               <section>
+
+                                        <section id="fragments">
+                                          <small>performance</small>
+                                          <h2>Python speeds up</h2>
+                                          <a class="fragment" href="https://towardsdatascience.com/python-3-14-will-be-faster-than-c-a97edd01d65d">
+                                            <img src="speed.png" style="height: 400px" alt="speed">
+                                          </a>
+                                          <p class="fragment"><em>Numba</em> can help with computations [<a href="https://numba.pydata.org/numba-doc/dev/user/5minguide.html">1</a>]</p>
+                                        </section>
+                     
+                                        <section id="fragments">
+                                          <small>performance</small>
+                                          <h2>Abstraction is costly</h2>
+<pre><code data-trim>
+In [9]: class Test:
+   ...:     def call(self):
+   ...:         pass
+   ...:     def decall(self):
+   ...:         self.call()
+In [10]: test = Test()
+
+In [11]: %timeit pass
+5.76 ns +/- 0.041 ns per loop
+
+In [13]: %timeit test.call()
+53.5 ns +/- 1.87 ns per loop
+
+In [17]: %timeit test.decall()
+84.1 ns +/- 0.692 ns per loop
+</code></pre>
+                                       </section>
+
+                                       <section id="fragments">
+                                          <small>performance</small>
+                                          <h2>GIL</h2>
+                                          <p class="fragment">python <em>reference counting</em> locks GIL [<a href="https://wiki.python.org/moin/GlobalInterpreterLock">2</a>]</p>
+                                          <p class="fragment">=> GIL is locked practically all the time</p>
+                                          <p class="fragment">CPU-bound tasks dont benefit from threads</p>
+                                          <p class="fragment">multi-processing is only practical on large scale</p>
+                                       </section>
+
+                                       <section id="fragments">
+                                          <small>performance</small>
+                                          <h2>Rust</h2>
+                                          <p class="fragment">a kind of modern C++</p>
+                                          <p class="fragment">can be quite efficient [<a href="https://www.forrestthewoods.com/blog/should-small-rust-structs-be-passed-by-copy-or-by-borrow/">3</a>], [<a href="https://kornel.ski/rust-c-speed">4</a>]</p>
+                                          <p class="fragment">enforces memory safety</p>
+                                          <p class="fragment">pleasant, once you stop fighting it</p>
+                                       </section>
+
+                               </section>
+
+                               <section>
+
+                                        <section id="fragments">
+                                          <h2>websockets</h2>
+                                          <p>why</p>
+                                          <p>how</p>
+                                        </section>
+
+                                        <section id="fragments">
+                                          <small>websockets</small>
+                                          <h2>why</h2>
+                                          <p class="fragment">little chunks</p>
+                                          <p class="fragment">a lot of concurrent input streams</p>
+                                          <p class="fragment">eventually a global decision</p>
+                                          <p class="fragment">rapid prototyping</p>
+                                          <p class="fragment">no speed compromise</p>
+                                        </section>
+
+                                        <section id="fragments">
+                                          <small>websockets</small>
+                                          <h2>how</h2>
+                                          <p class="fragment">parse and aggregate in Rust</p>
+                                          <p class="fragment">notify Python through asyncio</p>
+                                        </section>
+
+                                </section>
+
+                               <section>
+
+                                        <section id="fragments">
+                                          <h2>ruws</h2>
+                                          <p>Python</p>
+                                          <p>Rust [<a href="https://doc.rust-lang.org/stable/rust-by-example/">5</a>], [<a href="https://rustup.rs">6</a>]</p>
+                                          <p>PyO3 [<a href="https://github.com/PyO3/pyo3">7</a>]</p> 
+                                          <p>Tokio [<a href="https://tokio.rs/tokio/tutorial">8</a>]</p>
+                                        </section>
+
+                                </section>
+
+                                <section>
+
+                                        <section id="fragments">
+                                          <small>ruws</small>
+                                          <h2>Python</h2>
+                                          <p class="fragment">make a Rust stream providing an async iterator</p>
+                                          <p class="fragment">run in an asyncio loop</p>
+                                          <p class="fragment">consume - measure latencies</p>
+                                        </section>
+
+                                        <section id="fragments">
+                                          <small>python</small>
+                                          <h2>main.py</h2>
+                                          <p>consume data in an async iterator</p>
+<pre><code data-trim>
+async def main_loop(duration):
+    stream = Stream("ws://localhost:49158")  # in Rust
+    queue = stream.queue
+    stream.run(duration)
+
+    async for data in stream:
+        ex_time = data["ex_time"]
+        ru_time = data["ru_time"]
+        loc_time = time()
+
+        print(...)
+
+        queue.task_done()  # it can be done
+</code></pre>
+                                        </section>
+
+                                        <section id="fragments">
+                                          <small>python</small>
+                                          <h2>libruws.pyi</h2>
+                                          <p>Rust communicates using an <em>asyncio.Queue</em></p>
+
+<pre><code data-trim>
+from asyncio import Queue
+class PyStream:
+    url: str
+    queue: Queue
+
+    def __init__(self, url: str) -> None:
+        ...
+
+    def run(self, duration: int) -> None:
+        ...
+</code></pre>
+                                        </section>
+
+                                        <section id="fragments">
+                                          <small>python</small>
+                                          <h2>ruws.py</h2>
+                                          <p>wrap it to provide <em>Pythonic</em> feel</p>
+<pre><code data-trim>
+from libruws import PyStream
+class Stream:
+    def __init__(self, *args, **kwargs):
+        self.stream = PyStream(*args, **kwargs)
+        self.queue = self.stream.queue
+
+    def __getattr__(self, key):
+        return getattr(self.stream, key)
+
+    async def __aiter__(self):
+        while True:
+            data = await self.queue.get()
+            if isinstance(data, Exception):
+                raise data
+            yield data
+</code></pre>
+                                        </section>
+
+                                </section>
+
+                                <section>
+
+                                        <section id="fragments">
+                                          <small>ruws</small>
+                                          <h2>Rust</h2>
+                                          <p class="fragment">async WS connection</p>
+                                          <p class="fragment">feeding data to Python</p>
+                                          <p class="fragment">Python bindings</p>
+                                          <p class="fragment">shared library holding the code</p>
+                                        </section>
+
+                                        <section id="fragments">
+                                          <small>rust</small>
+                                          <h2>Cargo.toml</h2>
+                                          <p>tell Cargo to build a shared library with "cdynlib"</p>
+<pre><code data-trim>
+[package]
+name = "ruws"
+version = "1.0.0"
+authors = ["Ondrej Vostal &lt;ondrej@chainkeepers.io&gt;"]
+edition = "2018"
+[lib]
+name = "ruws"
+# "cdylib" creates a shared library for Python
+crate-type = ["cdylib"]
+</code></pre>
+                                        </section>
+
+                                        <section id="fragments">
+                                          <small>rust</small>
+                                          <h2>lib.rs/libruws</h2>
+                                          <p>describe bindings</p>
+<pre><code data-trim>
+/*
+The name must match name of module.
+Or you can use the #[pyo3(name=...)] macro
+*/
+#[pymodule]
+#[pyo3(name = "libruws")]
+fn libruws(py: Python, m: &PyModule) -&gt; PyResult&lt;()&gt; {
+    /* py: Python - is the GIL lock held */
+    pyo3_log::init();
+    m.add_class::&lt;PyStream&gt;()?;
+    /* exceptions must be created in Rust first, see github code */
+    m.add("StreamEnded", py.get_type::&lt;StreamEnded&gt;())?;
+    m.add("StreamError", py.get_type::&lt;StreamError&gt;())?;
+    Ok(())
+}
+</code></pre>
+                                        </section>
+
+                                        <section id="fragments">
+                                          <small>rust</small>
+                                          <h2>lib.rs/main</h2>
+                                          <p>our workhorse is a single-threaded Rust async loop</p>
+<pre><code data-trim>
+#[tokio::main(flavor = "current_thread")]
+async fn main() {
+    simple_logger::init_with_level(Level::Info)
+        .expect("Wanna log, but it's a chicken-egg problem");
+
+    info!("starting up");
+    let url = "ws://localhost:49158";
+    tokio::spawn(async move { connect(url).await; });
+
+    let args: Vec&lt;String&gt; = env::args().collect();
+    let duration_secs: u64 = args[1].parse().unwrap();
+    tokio::time::sleep(Duration::from_secs(duration_secs)).await;
+    
+    info!("ended");
+}
+</code></pre>
+
+                                        </section>
+
+                                        <section id="fragments">
+                                          <small>rust</small>
+                                          <h2>lib.rs/connect</h2>
+                                          <p>connect and subscribe by sending "subscribe"</p>
+<pre><code data-trim>
+async fn connect(url: &str) {
+    let url = url::Url::parse(url).unwrap();
+    let (mut con, resp) =
+        tokio_tungstenite::connect_async(url).await.unwrap();
+    info!("resp: {:?}", resp);
+
+    match con.send("subscribe").await {
+        Ok(_) => (),
+        Err(err) => {
+            error!("Cannot subscribe because of an error: {:?}", err);
+            return;
+        }
+    }
+    ...
+}
+</code></pre>
+                                        </section>
+
+                                        <section id="fragments">
+                                          <small>rust</small>
+                                          <h2>lib.rs/connect</h2>
+                                          <p>consume and parse data - beware of serde_json</p>
+<pre><code data-trim>
+...
+while let Some(item) = con.next().await {
+    let data = match item {
+        Ok(Message::Text(text)) => match json::parse(&text) {
+            Ok(data) => data,
+            Err(err) => { warn!("{}", err); continue; }
+        },
+        err => {
+            error!("Error when receiving a message: {:?}", err);
+            break;
+        }
+    };
+...
+</code></pre>
+                                        </section>
+
+                                        <section id="fragments">
+                                          <small>rust</small>
+                                          <h2>lib.rs/connect</h2>
+                                          <p>send data to the Python asyncio.Queue [<a href="https://pyo3.rs/v0.17.3/conversions/tables.html"</a>]</p>
+<pre><code data-trim>
+...
+let ex_time = data["data"]["time"].as_f64().unwrap_or(0.);
+let ru_time = get_timestamp();
+Python::with_gil(|py| {
+    let data_dict = [
+        ("ex_time", ex_time),
+        ("ru_time", ru_time)
+    ].into_py_dict(py);
+    queue.push_py(py, data_dict);
+});
+...
+</code></pre>
+                                        </section>
+
+                                        <section id="fragments">
+                                          <small>rust</small>
+                                          <h2>lib.rs/PyAsyncQueue</h2>
+                                          <p>Rust view of the asyncio.Queue</p>
+<pre><code data-trim>
+pub fn new() -> PyAsyncQueue {
+    Python::with_gil(|py| {
+        py.run("from asyncio import Queue", None, None).unwrap();
+        let res = py.eval("Queue()", None, None).unwrap();
+        let queue = res.into_py(py);
+        let loop_ = get_running_loop();
+        PyAsyncQueue {
+            put_nowait: 
+                queue.getattr(py, PyString::new(py, "put_nowait")).unwrap(),
+            call_soon_threadsafe: ...,
+            queue: queue,
+        }
+    })
+}
+</code></pre>
+                                        </section>
+
+                                        <section id="fragments">
+                                          <small>rust</small>
+                                          <h2>lib.rs/PyAsyncQueue</h2>
+                                          <p>Rust view of the asyncio.Queue</p>
+<pre><code data-trim>
+...
+    pub fn push_py&lt;T: ToPyObject&gt;(&self, py: Python, value: T) {
+        self.call_soon_threadsafe.call1(
+            py,
+            (&self.put_nowait, value.to_object(py))
+        ).unwrap();
+    }
+...
+</code></pre>
+                                        </section>
+                                 
+                                </section>
+
+                                <section>
+                                        <section id="fragments">
+                                          <small>ruws</small>
+                                          <h2>Benchmark</h2>
+                                          <p class="fragment">run a server feeding data at 10ms to subscribers</p>
+                                          <p class="fragment">consume in a pure Python code (aiohttp, orjson)</p>
+                                          <p class="fragment">consume in a pure Rust code (json-rust [<a href="https://docs.rs/json/latest/json/">9</a>])</p>
+                                          <p class="fragment">consume in Python using ruws (json-rust)</p>
+                                          <p class="fragment">measure time from creation to consumption</p>
+                                        </section>
+                                        
+                                        <section id="fragments">
+                                          <small>benchmark</small>
+                                          <h2>large data</h2>
+                                          <p>data with a 300k-['A'] array</p>
+<pre><code data-trim>
+                 py            ru          pyru
+count  29168.000000  29168.000000  29168.000000
+mean      72.002851     12.283540     12.302531
+std      210.516437      2.029103      2.041994
+1%        12.971799      8.371358      8.365791
+50%       18.723249     11.772752     11.778116
+99%     1229.027789     19.446271     19.560320
+</code></pre>
+                                          <p class="fragment">Python is 6x slower than Rust</p>
+                                          <p class="fragment">ruws slower than rust by 20us-ish, 1us in median</p>
+                                        </section>
+
+                                        <section id="fragments">
+                                          <small>benchmark</small>
+                                          <h2>small data</h2>
+                                          <p>data with a 5-['A'] array</p>
+<pre><code data-trim>
+                 py            ru          pyru
+count  45589.000000  45589.000000  45589.000000
+mean       0.487006      0.311788      0.312021
+std        0.124112      0.119379      0.099602
+1%         0.147343      0.087738      0.090837
+50%        0.520229      0.328779      0.329494
+99%        0.682173      0.449896      0.453949
+</code></pre>
+                                          <p class="fragment">Python is just 60% slower than Rust</p>
+                                          <p class="fragment">ruws slower than rust by 1us-ish</p>
+                                        </section>
+
+                                        <section id="fragments">
+                                          <small>benchmark</small>
+                                          <h2>Speed meets prototyping</h2>
+                                          <p class="fragment">this approach can speed up Python <em>greatly</em></p>
+                                          <p class="fragment">Python &rarr; Rust comms overhead is tiny</p>
+                                          <p class="fragment">do not give up Python for <em>rapid prototyping</em></p>
+                                        </section>
+
+                                </section>
+
+                                <section>
+                                        <a href="https://www.chainkeepers.io">
+                                                <img src="logo_crop.png" alt="www.chainkeepers.io" style="height: 80px; margin: 4rem auto 1rem auto; background: transparent;" class="demo-logo">
+                                        </a>
+                                        <p>Simpler is faster</p>
+                                        <a href="https://twitter.com/ChainKeepers">
+                                                <img src="chkp_twitter_qr.png" alt="https://twitter.com/ChainKeepers" style="height: 400px; margin: 4rem auto 1rem auto; background: transparent;" class="demo-logo">
+                                        </a>
+                                </section>
+
+                        </div>
+                </div>
+
+                <script src="dist/reveal.js"></script>
+                <script src="plugin/zoom/zoom.js"></script>
+                <script src="plugin/notes/notes.js"></script>
+                <script src="plugin/search/search.js"></script>
+                <script src="plugin/markdown/markdown.js"></script>
+                <script src="plugin/highlight/highlight.js"></script>
+                <script>
+
+                        // Also available as an ES module, see:
+                        // https://revealjs.com/initialization/
+                        Reveal.initialize({
+                                controls: true,
+                                progress: true,
+                                center: true,
+                                hash: true,
+
+                                // Learn about plugins: https://revealjs.com/plugins/
+                          plugins: [ RevealZoom, RevealNotes, RevealSearch, RevealMarkdown, RevealHighlight ]
+                        });
+
+                </script>
+
+        </body>
+</html>

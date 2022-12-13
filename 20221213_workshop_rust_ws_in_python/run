@@ -1,0 +1,34 @@
+#!/bin/bash
+
+set -e
+
+duration=${1?specify duration in seconds}
+data=${2?specify data size in number of "'A's"}
+
+# build
+
+# It might be required to run the commands below to setup Rust env
+
+# curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+# rustup override set stable
+
+(
+    cd rust
+    cargo build --release
+)
+
+(
+    cd rust-python/ruws
+    cargo build --release
+)
+
+# run
+
+(
+    PYTHONPATH=server/src python3 -m main $duration $data &
+    sleep 1
+    ./rust/target/release/rust-ws $duration > log/rust.log &
+    PYTHONPATH=python/src python3 -m main $duration > log/python.log &
+    PYTHONPATH=rust-python/src:rust-python/ruws/target/release python3 -m main $duration > log/rust-python.log &
+    wait
+)

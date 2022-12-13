@@ -1,5 +1,18 @@
+<<<<<<< HEAD
 *.swp
 
+=======
+# Custom
+
+*.swp
+
+# directory where apps are built to
+
+build/
+
+# Generic
+
+>>>>>>> 48eb8f2 (* Add python WS imple)
 #
 # https://github.com/github/gitignore/blob/master/Python.gitignore
 #
@@ -272,17 +285,3 @@ dist
 .idea/
 \#*
 .vscode
-
-# tsc-compiled files in lib/ts
-lib/ts/**/*.js
-lib/ts/**/*.js.map
-
-# directory where apps are built to
-build/
-
-ansible/credentials
-ansible/vault_password
-ansible/ansible.cfg
-
-# solana anchor
-.anchor/

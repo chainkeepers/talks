@@ -1,0 +1,1 @@
+ffmpeg -f x11grab -framerate 10 -i :0.0 ~/tmp/capture.wmv
