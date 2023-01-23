@@ -1,0 +1,36 @@
+[package]
+
+name = "ruws"
+version = "1.0.0"
+authors = ["Ondrej Vostal <ondrej@chainkeepers.io>"]
+edition = "2018"
+
+[lib]
+
+name = "ruws"
+# "cdylib" is necessary to produce a shared library for Python to import from.
+#
+# Downstream Rust code (including code in `bin/`, `examples/`, and `tests/`) will not be able
+# to `use string_sum;` unless the "rlib" or "lib" crate type is also included, e.g.:
+# crate-type = ["cdylib", "rlib"]
+crate-type = ["cdylib"]
+
+[dependencies]
+
+# PyO3
+pyo3 = { version = ">=0.17", features = ["extension-module"] }
+
+# Communication
+tokio = { version = ">=1.17.0", features = ["full"] }
+tokio-stream = { version = ">=0.1.8", features=["sync"] }
+futures = ">=0.3.21"
+futures-util = ">=0.3"
+tokio-tungstenite = {version = ">=0.17.1", features = ["rustls-tls-webpki-roots"]}
+url = ">=2.2.2"
+
+# Logging
+log = { version = ">=0.4.16", features = ["release_max_level_off"] }
+simple_logger = ">=2.1.0"
+
+# Serialiation and deserialization
+json = ">=0"

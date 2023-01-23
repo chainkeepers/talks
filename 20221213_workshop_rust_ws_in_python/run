@@ -22,13 +22,20 @@ data=${2?specify data size in number of "'A's"}
     cargo build --release
 )
 
+(
+    cd rust-python-quick/ruws
+    cargo build --release
+)
+
 # run
 
 (
-    PYTHONPATH=server/src python3 -m main $duration $data &
+    PYTHONPATH=server/src python3 -m main $((duration + 5)) $data &
     sleep 1
     ./rust/target/release/rust-ws $duration > log/rust.log &
     PYTHONPATH=python/src python3 -m main $duration > log/python.log &
+    PYTHONPATH=python-websockets/src python3 -m main $duration > log/python-websockets.log &
     PYTHONPATH=rust-python/src:rust-python/ruws/target/release python3 -m main $duration > log/rust-python.log &
+    PYTHONPATH=rust-python-quick/src:rust-python-quick/ruws/target/release python3 -m main $duration > log/rust-python-quick.log &
     wait
 )

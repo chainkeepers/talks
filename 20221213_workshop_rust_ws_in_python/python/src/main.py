@@ -3,24 +3,17 @@ from orjson import loads as orjson_loads
 from time import time
 import sys
 
-from aiohttp import ClientSession
-import websockets
-
-
-def subscribe(market):
-    return f"{{\"op\": \"subscribe\", \"channel\": \"ticker\", \"market\": \"{market}\"}}"
+from aiohttp import ClientSession, TCPConnector
 
 
 async def client_loop():
 
-    # url = "wss://ftx.com/ws/"
     url = "ws://localhost:49158"
 
-    async with ClientSession() as session:
+    connector = TCPConnector(keepalive_timeout=86400, ttl_dns_cache=86400, ssl=False)
+    client_session = ClientSession(connector=connector, read_bufsize=1024)
+    async with client_session as session:
         async with session.ws_connect(url) as ws:
-
-            await ws.send_str(subscribe("BTC-PERP"))
-
             async for resp in ws:
 
                 data = resp.json(loads=orjson_loads)

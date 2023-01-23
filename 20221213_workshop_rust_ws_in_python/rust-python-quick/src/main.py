@@ -5,6 +5,10 @@ import sys
 
 from ruws import Stream
 
+async def stop(stream, delay):
+    await asyncio.sleep(delay)
+    stream.close()
+
 
 async def main_loop(duration):
 
@@ -12,11 +16,13 @@ async def main_loop(duration):
     url = "ws://localhost:49158/"
 
     stream = Stream(url)
-    stream.run(duration)
+
+    asyncio.get_event_loop().create_task(stop(stream, duration))
 
     async for data in stream:
-        ex_time = data["ex_time"]
-        ru_time = data["ru_time"]
+        # ex_time = data.pop("data").pop("time")
+        ex_time = data.pop("data").pop("time")
+        ru_time = data.pop("atime")
         loc_time = time()
         print(
             f"{loc_time:>10.9f}, "
